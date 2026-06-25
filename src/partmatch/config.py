@@ -59,6 +59,15 @@ class Settings(BaseSettings):
     device: str = "cpu"
     image_size: int = 224
 
+    # --- 公開デモ用オートシード ---
+    # true かつ索引が無ければ、起動時に合成データ生成→学習→索引構築を自動実行する。
+    # クラウドにデプロイした直後からクライアントが動くデモを閲覧できるようにする。
+    autoseed: bool = False
+    autoseed_parts: int = 40
+    autoseed_groups: int = 10
+    autoseed_imgs: int = 6
+    autoseed_epochs: int = 40
+
     def ensure_dirs(self) -> None:
         """必要なディレクトリを作成する。"""
         for p in (self.data_dir, self.models_dir, self.db_path.parent):

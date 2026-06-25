@@ -42,7 +42,17 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     def _startup() -> None:
         # 起動時に状態を初期化（索引があればロード）
-        get_state()
+        state = get_state()
+        # 公開デモ用: 索引が無ければ自動でデータ生成・学習・索引構築
+        if state.settings.autoseed and not state.ready:
+            import logging
+            log = logging.getLogger("uvicorn.error")
+            log.info("AUTOSEED: 索引が無いためデモデータを生成・学習・索引構築します…")
+            try:
+                summary = state.seed_demo()
+                log.info("AUTOSEED 完了: %s", summary)
+            except Exception as e:  # noqa: BLE001
+                log.error("AUTOSEED 失敗: %s", e)
 
     # 管理 UI（静的ファイル）
     if WEB_DIR.exists():

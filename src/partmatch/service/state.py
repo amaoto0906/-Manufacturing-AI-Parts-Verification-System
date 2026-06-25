@@ -35,6 +35,21 @@ class AppState:
         else:
             self._engine = None
 
+    def seed_demo(self) -> dict:
+        """合成データ生成→距離学習→索引構築→品番同期を実行する（公開デモ用）。"""
+        from ..data.synth import generate_dataset
+        from ..pipeline import build_index, load_parts_meta
+
+        s = self.settings
+        generate_dataset(s.data_dir, n_parts=s.autoseed_parts, n_groups=s.autoseed_groups,
+                         imgs_per_part=s.autoseed_imgs, seed=42)
+        summary = build_index(s, train=True, epochs=s.autoseed_epochs)
+        for part_no, m in load_parts_meta(s.data_dir / "metadata").items():
+            self.repo.upsert_part(part_no, group_id=m.get("group_id"),
+                                  category=m.get("shape"))
+        self.rebuild_engine()
+        return summary
+
     @property
     def engine(self) -> Optional[MatchEngine]:
         return self._engine

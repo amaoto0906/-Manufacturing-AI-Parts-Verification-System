@@ -1,0 +1,29 @@
+# Render Blueprint — クライアント閲覧用の公開デモを1サービスで起動する。
+#   https://render.com/ → New → Blueprint → このリポジトリを選択
+# 起動時にオートシードで索引を自動構築するので、デプロイ直後から動くデモが見られる。
+services:
+  - type: web
+    name: partmatch-demo
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    # 無料512MB枠向けの軽量設定（classic + 投影なし = torch を読み込まず省メモリ）。
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PARTMATCH_AUTOSEED        # 起動時に自動でデモデータ生成・索引構築
+        value: "1"
+      - key: PARTMATCH_BACKEND         # 省メモリ: classic（numpy/PILのみ）
+        value: classic
+      - key: PARTMATCH_USE_PROJECTION  # torch を使わないため投影なし
+        value: "false"
+
+    # --- 高精度デモにする場合（Top-1 ~0.78, torchvision）---
+    #   plan: standard            # 2GB 以上に変更
+    #   envVars の PARTMATCH_BACKEND を torchvision、PARTMATCH_USE_PROJECTION を true に。
+    #   起動時シードが ~20-30s かかる（healthCheck の猶予内）。
+
+    # --- 状態を永続化する場合（有料プラン）---
+    #   disk:
+    #     name: data
+    #     mountPath: /data
+    #     sizeGB: 1

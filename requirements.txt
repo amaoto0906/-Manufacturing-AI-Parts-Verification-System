@@ -10,10 +10,12 @@ python-multipart>=0.0.9
 jinja2>=3.1
 faiss-cpu>=1.7
 
-# 本番バックボーン（任意・重量）: DINOv2 / torchvision 特徴抽出
-# CPU 環境では:  pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-torch>=2.1
-torchvision>=0.16
+# 本番バックボーン（torchvision/DINOv2）は別途インストールする（CUDA版の巨大DLを避けるため）。
+# CPU 環境（推奨）:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+# ※ torch 無しでも classic バックボーン（numpy/PIL のみ）で全機能が動作する。
+# torch>=2.1
+# torchvision>=0.16
 
 # 開発・テスト
 pytest>=8.0

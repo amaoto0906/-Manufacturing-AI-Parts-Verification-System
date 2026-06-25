@@ -1,10 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-// ビルド成果物は FastAPI が /ui で配信するため base を /ui/ に固定。
+// base は環境で切替:
+//  - 既定 "/ui/" : FastAPI が /ui で配信するローカル/オンプレ構成
+//  - Vercel 等で単体配信する場合は環境変数 VITE_BASE=/ を設定する
 // 開発時(npm run dev)は /api・/health をバックエンド(8077)へプロキシする。
 export default defineConfig({
-  base: "/ui/",
+  base: process.env.VITE_BASE ?? "/ui/",
   plugins: [react()],
   build: {
     outDir: "dist",

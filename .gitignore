@@ -15,6 +15,9 @@ frontend/dist/
 # TLS 証明書（自己署名）
 certs/
 
+# Vercel
+.vercel/
+
 # OS / IDE
 .DS_Store
 .idea/
