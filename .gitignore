@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+
+# 生成物（データ・モデル・索引・DB）
+var/
+
+# フロントエンド（React/Vite）
+frontend/node_modules/
+frontend/dist/
+
+# TLS 証明書（自己署名）
+certs/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+
+# C#
+csharp-client/**/bin/
+csharp-client/**/obj/
+
+# 環境
+.env

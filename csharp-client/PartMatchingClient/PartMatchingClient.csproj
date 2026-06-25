@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    既存 C# システムから 部品照合 AI(API) を呼び出すサンプルクライアント。
+    実行:  dotnet run -- <画像パス> <期待品番> [APIベースURL]
+    例:    dotnet run -- ./capture.png PRS-00001 http://127.0.0.1:8077
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>PartMatching</RootNamespace>
+  </PropertyGroup>
+</Project>

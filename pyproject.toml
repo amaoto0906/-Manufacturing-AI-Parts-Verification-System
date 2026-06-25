@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "partmatch"
+version = "0.1.0"
+description = "金属プレス部品の画像照合AIシステム（DINOv2/CNN + Metric Learning + ベクトル検索 + 安全ゲート判定）"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.26",
+    "pillow>=10.0",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.1",
+    "python-multipart>=0.0.9",
+    "jinja2>=3.1",
+    "faiss-cpu>=1.7",
+]
+
+[project.optional-dependencies]
+torch = ["torch>=2.1", "torchvision>=0.16"]
+dev = ["pytest>=8.0", "httpx>=0.27", "requests>=2.31"]
+
+[project.scripts]
+partmatch-api = "partmatch.service.app:app"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+filterwarnings = ["ignore::UserWarning", "ignore::DeprecationWarning"]

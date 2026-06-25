@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>部品照合システム — AI Inspection Console</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="side-rail" aria-label="システムナビゲーション">
+      <div class="brand-mark" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <nav class="rail-tabs">
+        <button class="rail-tab active" data-tab="dashboard" title="ダッシュボード" aria-label="ダッシュボード">⌂</button>
+        <button class="rail-tab" data-tab="inspect" title="照合" aria-label="照合">◎</button>
+        <button class="rail-tab" data-tab="parts" title="品番マスタ" aria-label="品番マスタ">▦</button>
+        <button class="rail-tab" data-tab="history" title="履歴・レビュー" aria-label="履歴・レビュー">◷</button>
+      </nav>
+      <div class="rail-pulse" aria-hidden="true"></div>
+    </aside>
+
+    <div class="workspace">
+      <header class="topbar">
+        <div class="brand-copy">
+          <p class="eyebrow">Manufacturing AI / Part Matching</p>
+          <h1>部品照合システム</h1>
+          <p class="sub">金属プレス部品の画像照合と出荷取り違え防止を行う現場コンソール</p>
+        </div>
+        <div class="topbar-actions">
+          <div id="clock" class="clock">--:--:--</div>
+          <div id="status-chip" class="chip chip-gray"><span></span>接続確認中</div>
+        </div>
+      </header>
+
+      <nav class="tabs" aria-label="メインタブ">
+        <button class="tab active" data-tab="dashboard"><span>⌂</span>ダッシュボード</button>
+        <button class="tab" data-tab="inspect"><span>◎</span>照合</button>
+        <button class="tab" data-tab="parts"><span>▦</span>品番マスタ</button>
+        <button class="tab" data-tab="history"><span>◷</span>履歴・レビュー</button>
+      </nav>
+
+      <main>
+        <section id="dashboard" class="panel active">
+          <div class="operations-hero">
+            <img src="./assets/generated/hero-inspection-cell.png" alt="産業用カメラ照合セル">
+            <div class="hero-copy">
+              <p class="eyebrow">Line DEMO / Safety Gate Active</p>
+              <h2>画像照合から出荷可否までを一画面で制御</h2>
+              <div class="hero-metrics" id="info-cards"></div>
+            </div>
+            <div class="signal-stack" aria-hidden="true">
+              <span class="signal ok"></span>
+              <span class="signal warn"></span>
+              <span class="signal stop"></span>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="surface span-7">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Inspection Flow</p>
+                  <h3>照合パイプライン</h3>
+                </div>
+                <span class="live-dot">LIVE</span>
+              </div>
+              <div id="workflow-strip" class="workflow-strip"></div>
+            </section>
+
+            <section class="surface span-5">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Result Mix</p>
+                  <h3>判定内訳</h3>
+                </div>
+                <button id="btn-refresh-dashboard" class="icon-btn" title="更新" aria-label="更新">↻</button>
+              </div>
+              <div id="result-breakdown" class="breakdown"></div>
+            </section>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="surface span-5 demo-panel">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Demo Training</p>
+                  <h3>デモデータ生成と索引構築</h3>
+                </div>
+              </div>
+              <div class="demo-visual-grid">
+                <img src="./assets/generated/data-generation.png" alt="合成データ生成">
+                <img src="./assets/generated/metric-learning.png" alt="距離学習">
+              </div>
+              <div class="form-row dense">
+                <label>品番数<input type="number" id="g-parts" value="40" min="4" max="300"></label>
+                <label>類似Gr<input type="number" id="g-groups" value="10" min="1" max="100"></label>
+                <label>枚数/品番<input type="number" id="g-imgs" value="6" min="2" max="20"></label>
+                <label>Epoch<input type="number" id="g-epochs" value="50" min="5" max="200"></label>
+              </div>
+              <div class="btn-row">
+                <button id="btn-generate" class="btn btn-primary">デモデータ生成＆学習</button>
+                <button id="btn-build" class="btn">索引再構築</button>
+              </div>
+              <pre id="admin-log" class="log"></pre>
+            </section>
+
+            <section class="surface span-7">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Line Intelligence</p>
+                  <h3>現場イメージ</h3>
+                </div>
+              </div>
+              <div id="asset-mosaic" class="asset-mosaic"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="inspect" class="panel">
+          <div class="inspection-layout">
+            <section class="surface capture-surface">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Capture</p>
+                  <h3>撮影画像</h3>
+                </div>
+                <span id="capture-state" class="state-pill neutral">未選択</span>
+              </div>
+              <div class="preview-wrap">
+                <img id="preview" alt="撮影画像プレビュー">
+                <div id="preview-empty" class="preview-empty">
+                  <img src="./assets/generated/calibration-plate.png" alt="校正プレート">
+                  <span>画像未選択</span>
+                </div>
+                <div class="scan-line" aria-hidden="true"></div>
+              </div>
+              <div class="form-row">
+                <label class="grow">サンプル部品（実際に流す部品）
+                  <select id="sample-part"></select>
+                </label>
+                <button id="btn-sample" class="btn">サンプル撮影取得</button>
+              </div>
+              <div class="form-row">
+                <label class="grow file-field">またはファイルを選択
+                  <input type="file" id="file-input" accept="image/*">
+                </label>
+              </div>
+              <div id="part-gallery" class="part-gallery"></div>
+            </section>
+
+            <section class="surface inspect-surface">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Decision Gate</p>
+                  <h3>照合実行</h3>
+                </div>
+                <img class="head-thumb" src="./assets/generated/workflow-safety-gate.png" alt="安全ゲート">
+              </div>
+              <div class="form-row">
+                <label class="grow">期待品番（作業指示）
+                  <select id="expected-part"><option value="">（指定なし）</option></select>
+                </label>
+              </div>
+              <label class="check"><input type="checkbox" id="run-quality" checked> 画質ゲートを有効化</label>
+              <div class="btn-row">
+                <button id="btn-inspect" class="btn btn-primary btn-large">照合する</button>
+              </div>
+
+              <div id="result" class="result hidden">
+                <div class="result-head">
+                  <span id="result-badge" class="badge">—</span>
+                  <span id="result-action" class="action"></span>
+                  <span id="result-time" class="muted"></span>
+                </div>
+                <div class="result-body">
+                  <div class="kv"><span>判定品番</span><b id="r-pred">—</b></div>
+                  <div class="kv"><span>期待品番</span><b id="r-exp">—</b></div>
+                  <div class="kv"><span>信頼度</span>
+                    <div class="bar"><div id="r-conf-bar" class="bar-fill"></div><span id="r-conf-txt"></span></div>
+                  </div>
+                  <div class="kv"><span>Top1-Top2 マージン</span><b id="r-margin">—</b></div>
+                  <div class="reason" id="r-reason"></div>
+                  <h4>上位候補</h4>
+                  <table class="mini"><thead><tr><th>順位</th><th>品番</th><th>類似度</th><th>信頼度</th><th>Gr</th></tr></thead>
+                    <tbody id="r-cands"></tbody></table>
+                  <h4>画質</h4>
+                  <div id="r-quality" class="quality"></div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="parts" class="panel">
+          <section class="surface">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Master Data</p>
+                <h3>品番マスタ</h3>
+              </div>
+              <button id="btn-reload-parts" class="btn btn-sm">再読込</button>
+            </div>
+            <div id="parts-visuals" class="parts-visuals"></div>
+            <div class="table-wrap">
+              <table class="data"><thead><tr>
+                <th>画像</th><th>品番</th><th>名称</th><th>カテゴリ</th><th>類似Gr</th>
+                <th>受理しきい値</th><th>マージンしきい値</th><th>状態</th>
+              </tr></thead><tbody id="parts-body"></tbody></table>
+            </div>
+          </section>
+        </section>
+
+        <section id="history" class="panel">
+          <section class="surface history-hero">
+            <img src="./assets/generated/review-workflow.png" alt="レビュー作業">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Review Loop</p>
+                <h3>照合履歴</h3>
+              </div>
+              <div class="filter-row">
+                <select id="hist-filter" class="inline">
+                  <option value="">すべて</option>
+                  <option value="OK">OK</option>
+                  <option value="NG">NG</option>
+                  <option value="REVIEW">REVIEW</option>
+                  <option value="RETAKE">RETAKE</option>
+                  <option value="UNKNOWN">UNKNOWN</option>
+                </select>
+                <button id="btn-reload-hist" class="btn btn-sm">再読込</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table class="data"><thead><tr>
+                <th>ID</th><th>判定</th><th>期待</th><th>判定品番</th><th>信頼度</th>
+                <th>理由</th><th>時刻</th><th>レビュー</th>
+              </tr></thead><tbody id="hist-body"></tbody></table>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer>部品照合システム v0.1.0 / DINOv2・CNN・Metric Learning・Vector Search・Safety Gate</footer>
+    </div>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>

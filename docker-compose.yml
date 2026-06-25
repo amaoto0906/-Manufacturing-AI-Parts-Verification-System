@@ -1,0 +1,30 @@
+# 部品照合システム ローカル/オンプレ用 compose
+# PoC は SQLite で API 単体起動。本番は postgres プロファイルを有効化。
+services:
+  api:
+    build: .
+    ports:
+      - "8077:8077"
+    volumes:
+      - partmatch-data:/data
+    environment:
+      PARTMATCH_BACKEND: torchvision      # 本番は dinov2
+    restart: unless-stopped
+
+  # 本番DB（任意）:  docker compose --profile prod up -d
+  postgres:
+    image: postgres:16
+    profiles: ["prod"]
+    environment:
+      POSTGRES_DB: partmatch
+      POSTGRES_USER: partmatch
+      POSTGRES_PASSWORD: change_me
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ./database/schema_postgres.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+    ports:
+      - "5432:5432"
+
+volumes:
+  partmatch-data:
+  pg-data:
